@@ -7,10 +7,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
@@ -30,12 +39,20 @@ import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     XMPPTCPConnection connection = null;
-    String loginUser = "testuser1", passwordUser = "testuser1";
     Button button;
+    String server = "192.168.0.101";
+    String sender = "testuser1", receiver = "testuser2";
+    public static boolean connected = false;
+    public boolean loggedin = false;
+    public static boolean isconnecting = false;
+    public static boolean isToasted = true;
+    private boolean chat_created = false;
 
     @SuppressLint("StaticFieldLeak")
     @Override
@@ -44,6 +61,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         button = findViewById(R.id.activity_main_btn_sendmsg);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChatMessage chatMessage = new ChatMessage();
+                chatMessage.setReceiver(receiver);
+                chatMessage.setBody("hello from " + sender);
+                chatMessage.setMine(false);
+
+                sendMessage(chatMessage);
+            }
+        });
 
         new AsyncTask<Object, Object, Object>() {
             @Override
@@ -58,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
 
         XMPPTCPConnectionConfiguration.Builder config = XMPPTCPConnectionConfiguration.builder();
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
-        config.setServiceName("192.168.0.101");
-        config.setHost("192.168.0.101");
+        config.setServiceName(server);
+        config.setHost(server);
         config.setPort(5222);
         config.setDebuggerEnabled(true);
         XMPPTCPConnection.setUseStreamManagementResumptiodDefault(true);
@@ -76,8 +104,6 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, Boolean> connectionThread = new AsyncTask<Void, Void, Boolean>() {
             @Override
             protected synchronized Boolean doInBackground(Void... arg0) {
-                boolean isconnecting, isToasted = true, connected;
-
                 if (connection.isConnected())
                     return false;
 
@@ -146,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void login() {
         try {
-            connection.login(loginUser, passwordUser);
+            connection.login(sender, sender);
             Log.v("LOGIN", "Yey! We're connected to the Xmpp server!");
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class XMPPConnectionListener implements ConnectionListener {
-        boolean connected, isToasted = true, chat_created, loggedin;
 
         @Override
         public void connected(final XMPPConnection connection) {
@@ -301,6 +326,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void sendMessage(ChatMessage chatMessage) {
+        Chat mychat = null;
+
+        if (!chat_created) {
+            mychat = ChatManager.getInstanceFor(connection).createChat(
+                chatMessage.receiver + "@"
+                    + "arugu-g41mt-s2",
+                new MMessageListener(getApplicationContext()));
+            chat_created = true;
+        }
+
+        final Message message = new Message();
+        message.setBody(chatMessage.getBody());
+        message.setType(Message.Type.normal);
+
+        try {
+            if (connection.isAuthenticated()) {
+                mychat.sendMessage(message);
+            } else {
+                login();
+            }
+        } catch (SmackException.NotConnectedException e) {
+            Log.v("xmpp.SendMessage()", "msg Not sent!-Not Connected!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private class MMessageListener implements ChatMessageListener {
 
         public MMessageListener(Context contxt) {
@@ -325,6 +378,22 @@ public class MainActivity extends AppCompatActivity {
 
         private void processMessage(final ChatMessage chatMessage) {
 
+//            chatMessage.isMine = false;
+//            Chats.chatlist.add(chatMessage);
+//            new Handler(Looper.getMainLooper()).post(new Runnable() {
+//
+//                @Override
+//                public void run() {
+//                    Chats.chatAdapter.notifyDataSetChanged();
+//                }
+//            });
+
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), chatMessage.getBody(), Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 
@@ -348,5 +417,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         boolean isMine;
+
+        public String getReceiver() {
+            return receiver;
+        }
+
+        public void setReceiver(String receiver) {
+            this.receiver = receiver;
+        }
+
+        String receiver;
     }
 }
