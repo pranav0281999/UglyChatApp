@@ -13,13 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.example.uglychatapp.models.ChatMessage;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
@@ -38,9 +32,6 @@ import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -331,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!chat_created) {
             mychat = ChatManager.getInstanceFor(connection).createChat(
-                chatMessage.receiver + "@"
+                chatMessage.getReceiver() + "@"
                     + "arugu-g41mt-s2",
                 new MMessageListener(getApplicationContext()));
             chat_created = true;
@@ -395,37 +386,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-    }
-
-    private class ChatMessage implements Serializable {
-        public String getBody() {
-            return body;
-        }
-
-        public void setBody(String body) {
-            this.body = body;
-        }
-
-        String body;
-
-        public boolean isMine() {
-            return isMine;
-        }
-
-        public void setMine(boolean mine) {
-            isMine = mine;
-        }
-
-        boolean isMine;
-
-        public String getReceiver() {
-            return receiver;
-        }
-
-        public void setReceiver(String receiver) {
-            this.receiver = receiver;
-        }
-
-        String receiver;
     }
 }
