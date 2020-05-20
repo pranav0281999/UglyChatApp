@@ -26,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         globalVariable = (MainApplication) getApplicationContext();
+        globalVariable.connection.addConnectionListener(connectionListener);
 
         et_username = findViewById(R.id.activity_login_et_username);
         et_password = findViewById(R.id.activity_login_et_password);
@@ -64,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
     public void openMainActivity() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 
     public void showLoginError() {
@@ -71,43 +73,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signin() {
-        globalVariable.connection.addConnectionListener(new ConnectionListener() {
-            @Override
-            public void connected(XMPPConnection connection) {
-                Log.v(TAG, "connected");
-            }
-
-            @Override
-            public void authenticated(XMPPConnection connection, boolean resumed) {
-                openMainActivity();
-            }
-
-            @Override
-            public void connectionClosed() {
-                Log.v(TAG, "connectionClosed");
-            }
-
-            @Override
-            public void connectionClosedOnError(Exception e) {
-                Log.v(TAG, "connectionClosedOnError");
-            }
-
-            @Override
-            public void reconnectionSuccessful() {
-                Log.v(TAG, "reconnectionSuccessful");
-            }
-
-            @Override
-            public void reconnectingIn(int seconds) {
-                Log.v(TAG, "reconnectingIn");
-            }
-
-            @Override
-            public void reconnectionFailed(Exception e) {
-                Log.v(TAG, "reconnectionFailed");
-            }
-        });
-
         String username, password;
         username = et_username.getText().toString();
         password = et_password.getText().toString();
@@ -119,5 +84,48 @@ public class LoginActivity extends AppCompatActivity {
 
             showLoginError();
         }
+    }
+
+    ConnectionListener connectionListener = new ConnectionListener() {
+        @Override
+        public void connected(XMPPConnection connection) {
+            Log.v(TAG, "connected");
+        }
+
+        @Override
+        public void authenticated(XMPPConnection connection, boolean resumed) {
+            openMainActivity();
+        }
+
+        @Override
+        public void connectionClosed() {
+            Log.v(TAG, "connectionClosed");
+        }
+
+        @Override
+        public void connectionClosedOnError(Exception e) {
+            Log.v(TAG, "connectionClosedOnError");
+        }
+
+        @Override
+        public void reconnectionSuccessful() {
+            Log.v(TAG, "reconnectionSuccessful");
+        }
+
+        @Override
+        public void reconnectingIn(int seconds) {
+            Log.v(TAG, "reconnectingIn");
+        }
+
+        @Override
+        public void reconnectionFailed(Exception e) {
+            Log.v(TAG, "reconnectionFailed");
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        globalVariable.connection.removeConnectionListener(connectionListener);
     }
 }
