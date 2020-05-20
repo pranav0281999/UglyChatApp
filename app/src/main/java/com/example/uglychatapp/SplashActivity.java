@@ -4,10 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -48,42 +45,7 @@ public class SplashActivity extends AppCompatActivity {
         XMPPTCPConnection.setUseStreamManagementDefault(true);
         globalVariable.connection = new XMPPTCPConnection(config.build());
 
-        globalVariable.connection.addConnectionListener(new ConnectionListener() {
-            @Override
-            public void connected(XMPPConnection connection) {
-                startLoginActivity();
-            }
-
-            @Override
-            public void authenticated(XMPPConnection connection, boolean resumed) {
-                Log.v(TAG, "authenticated");
-            }
-
-            @Override
-            public void connectionClosed() {
-                Log.v(TAG, "connectionClosed");
-            }
-
-            @Override
-            public void connectionClosedOnError(Exception e) {
-                Log.v(TAG, "connectionClosedOnError");
-            }
-
-            @Override
-            public void reconnectionSuccessful() {
-                Log.v(TAG, "reconnectionSuccessful");
-            }
-
-            @Override
-            public void reconnectingIn(int seconds) {
-                Log.v(TAG, "reconnectingIn");
-            }
-
-            @Override
-            public void reconnectionFailed(Exception e) {
-                Log.v(TAG, "reconnectionFailed");
-            }
-        });
+        globalVariable.connection.addConnectionListener(connectionListener);
 
         connect();
     }
@@ -128,10 +90,54 @@ public class SplashActivity extends AppCompatActivity {
     public void startLoginActivity() {
         Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
         startActivity(intent);
+        finish();
     }
 
     public void showConnectionError() {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Couldn't connect to server", Snackbar.LENGTH_INDEFINITE);
         snackbar.show();
+    }
+
+    ConnectionListener connectionListener = new ConnectionListener() {
+        @Override
+        public void connected(XMPPConnection connection) {
+            startLoginActivity();
+        }
+
+        @Override
+        public void authenticated(XMPPConnection connection, boolean resumed) {
+            Log.v(TAG, "authenticated");
+        }
+
+        @Override
+        public void connectionClosed() {
+            Log.v(TAG, "connectionClosed");
+        }
+
+        @Override
+        public void connectionClosedOnError(Exception e) {
+            Log.v(TAG, "connectionClosedOnError");
+        }
+
+        @Override
+        public void reconnectionSuccessful() {
+            Log.v(TAG, "reconnectionSuccessful");
+        }
+
+        @Override
+        public void reconnectingIn(int seconds) {
+            Log.v(TAG, "reconnectingIn");
+        }
+
+        @Override
+        public void reconnectionFailed(Exception e) {
+            Log.v(TAG, "reconnectionFailed");
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        globalVariable.connection.removeConnectionListener(connectionListener);
     }
 }
