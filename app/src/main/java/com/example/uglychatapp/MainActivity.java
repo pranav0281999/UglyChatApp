@@ -19,7 +19,6 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
@@ -31,19 +30,10 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 
-import java.io.IOException;
-
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    XMPPTCPConnection connection = null;
     Button button;
-    String server = "192.168.0.101";
-    String sender = "testuser1", receiver = "testuser2";
-    public static boolean connected = false;
-    public boolean loggedin = false;
-    public static boolean isconnecting = false;
-    public static boolean isToasted = true;
-    private boolean chat_created = false;
+    MainApplication globalVariable;
 
     @SuppressLint("StaticFieldLeak")
     @Override
@@ -51,15 +41,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        globalVariable = (MainApplication) getApplicationContext();
+
         button = findViewById(R.id.activity_main_btn_sendmsg);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setReceiver(receiver);
-                chatMessage.setBody("hello from " + sender);
+                chatMessage.setReceiver(MainApplication.receiver);
+                chatMessage.setBody("hello from " + MainApplication.sender);
                 chatMessage.setMine(false);
-
                 sendMessage(chatMessage);
             }
         });
@@ -74,97 +65,67 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initialiseConnection() {
-
         XMPPTCPConnectionConfiguration.Builder config = XMPPTCPConnectionConfiguration.builder();
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
-        config.setServiceName(server);
-        config.setHost(server);
-        config.setPort(5222);
+        config.setServiceName(MainApplication.server);
+        config.setHost(MainApplication.server);
+        config.setPort(MainApplication.serverPort);
         config.setDebuggerEnabled(true);
         XMPPTCPConnection.setUseStreamManagementResumptiodDefault(true);
         XMPPTCPConnection.setUseStreamManagementDefault(true);
-        connection = new XMPPTCPConnection(config.build());
-
+        globalVariable.connection = new XMPPTCPConnection(config.build());
         XMPPConnectionListener connectionListener = new XMPPConnectionListener();
-        connection.addConnectionListener(connectionListener);
-        connect("me");
+        globalVariable.connection.addConnectionListener(connectionListener);
+
+        connect();
     }
 
-    public void connect(final String caller) {
+    public void connect() {
 
         @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, Boolean> connectionThread = new AsyncTask<Void, Void, Boolean>() {
             @Override
             protected synchronized Boolean doInBackground(Void... arg0) {
-                if (connection.isConnected())
+                if (globalVariable.connection.isConnected())
                     return false;
 
-                isconnecting = true;
+                MainApplication.isconnecting = true;
 
-                if (isToasted)
+                if (MainApplication.isToasted)
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
-
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(), caller + "=>connecting....", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_LONG).show();
                         }
                     });
-
-                Log.v("Connect() Function", caller + "=>connecting....");
 
                 try {
-                    connection.connect();
-                    DeliveryReceiptManager dm = DeliveryReceiptManager
-                        .getInstanceFor(connection);
-                    dm.setAutoReceiptMode(DeliveryReceiptManager.AutoReceiptMode.always);
-                    dm.addReceiptReceivedListener(new ReceiptReceivedListener() {
+                    globalVariable.connection.connect();
 
+                    DeliveryReceiptManager dm = DeliveryReceiptManager.getInstanceFor(globalVariable.connection);
+                    dm.setAutoReceiptMode(DeliveryReceiptManager.AutoReceiptMode.always);
+
+                    dm.addReceiptReceivedListener(new ReceiptReceivedListener() {
                         @Override
                         public void onReceiptReceived(final String fromid, final String toid, final String msgid, final Stanza packet) {
+                            Log.v(TAG, "onReceiptReceived");
                         }
                     });
-                    connected = true;
 
-                } catch (IOException e) {
-                    if (isToasted)
-                        new Handler(Looper.getMainLooper())
-                            .post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), "(" + caller + ")" + "IOException: ", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                    Log.v("(" + caller + ")", "IOException: " + e.getMessage());
-                } catch (SmackException e) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "(" + caller + ")" + "SMACKException: ", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    Log.v("(" + caller + ")", "SMACKException: " + e.getMessage());
-                } catch (XMPPException e) {
-                    if (isToasted)
-                        new Handler(Looper.getMainLooper())
-                            .post(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), "(" + caller + ")" + "XMPPException: ", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                    Log.v("connect(" + caller + ")", "XMPPException: " + e.getMessage());
+                    MainApplication.connected = true;
+                } catch (Exception e) {
+                    Log.v(TAG, e.toString());
                 }
-                return isconnecting = false;
+
+                return MainApplication.isconnecting = false;
             }
         };
+
         connectionThread.execute();
     }
 
     public void login() {
         try {
-            connection.login(sender, sender);
-            Log.v("LOGIN", "Yey! We're connected to the Xmpp server!");
+            globalVariable.connection.login(MainApplication.sender, MainApplication.sender);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -174,8 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void connected(final XMPPConnection connection) {
-            Log.v("xmpp", "Connected!");
-            connected = true;
+            MainApplication.connected = true;
             if (!connection.isAuthenticated()) {
                 login();
             }
@@ -183,97 +143,79 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void connectionClosed() {
-            if (isToasted)
-
+            if (MainApplication.isToasted) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
-
                     @Override
                     public void run() {
                         Toast.makeText(getApplicationContext(), "ConnectionCLosed!",
                             Toast.LENGTH_SHORT).show();
-
                     }
                 });
-            Log.v("xmpp", "ConnectionCLosed!");
-            connected = false;
-            chat_created = false;
-            loggedin = false;
+            }
+
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void connectionClosedOnError(Exception arg0) {
-            if (isToasted)
-
+            if (MainApplication.isToasted) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
-
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "ConnectionClosedOn Error!!",
-                            Toast.LENGTH_SHORT).show();
-
+                        Toast.makeText(getApplicationContext(), "ConnectionClosedOn Error!!", Toast.LENGTH_SHORT).show();
                     }
                 });
-            Log.v("xmpp", "ConnectionClosedOn Error!");
-            connected = false;
+            }
 
-            chat_created = false;
-            loggedin = false;
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectingIn(int arg0) {
-
-            Log.v("xmpp", "Reconnectingin " + arg0);
-
-            loggedin = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectionFailed(Exception arg0) {
-            if (isToasted)
-
+            if (MainApplication.isToasted) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
-
                     @Override
                     public void run() {
-
-                        Toast.makeText(getApplicationContext(), "ReconnectionFailed!",
-                            Toast.LENGTH_SHORT).show();
-
+                        Toast.makeText(getApplicationContext(), "ReconnectionFailed!", Toast.LENGTH_SHORT).show();
                     }
                 });
-            Log.v("xmpp", "ReconnectionFailed!");
-            connected = false;
+            }
 
-            chat_created = false;
-            loggedin = false;
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectionSuccessful() {
-            if (isToasted)
-
+            if (MainApplication.isToasted) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
-
                     @Override
                     public void run() {
                         Toast.makeText(getApplicationContext(), "REConnected!",
                             Toast.LENGTH_SHORT).show();
-
                     }
                 });
-            Log.v("xmpp", "ReconnectionSuccessful");
-            connected = true;
+            }
 
-            chat_created = false;
-            loggedin = false;
+            MainApplication.connected = true;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void authenticated(XMPPConnection arg0, boolean arg1) {
-            Log.v("xmpp", "Authenticated!");
-            loggedin = true;
-            ChatManager.getInstanceFor(connection).addChatListener(
+            MainApplication.loggedin = true;
+            ChatManager.getInstanceFor(globalVariable.connection).addChatListener(
                 new ChatManagerListener() {
                     @Override
                     public void chatCreated(Chat chat, boolean createdLocally) {
@@ -283,11 +225,10 @@ public class MainActivity extends AppCompatActivity {
                             // Chat created by others
                             chat.addMessageListener(new MMessageListener(getApplicationContext()));
                         }
-
                     }
                 });
 
-            chat_created = false;
+            MainApplication.chat_created = false;
             new Thread(new Runnable() {
 
                 @Override
@@ -295,23 +236,18 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        Log.v(TAG, e.toString());
                     }
 
                 }
             }).start();
-            if (isToasted)
 
+            if (MainApplication.isToasted)
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
 
                     @Override
                     public void run() {
-                        // TODO Auto-generated method stub
-
-                        Toast.makeText(getApplicationContext(), "Connected!",
-                            Toast.LENGTH_SHORT).show();
-
+                        Toast.makeText(getApplicationContext(), "Connected!", Toast.LENGTH_SHORT).show();
                     }
                 });
         }
@@ -320,12 +256,11 @@ public class MainActivity extends AppCompatActivity {
     public void sendMessage(ChatMessage chatMessage) {
         Chat mychat = null;
 
-        if (!chat_created) {
-            mychat = ChatManager.getInstanceFor(connection).createChat(
-                chatMessage.getReceiver() + "@"
-                    + "arugu-g41mt-s2",
+        if (!MainApplication.chat_created) {
+            mychat = ChatManager.getInstanceFor(globalVariable.connection).createChat(
+                chatMessage.getReceiver() + "@" + MainApplication.openfireHostname,
                 new MMessageListener(getApplicationContext()));
-            chat_created = true;
+            MainApplication.chat_created = true;
         }
 
         final Message message = new Message();
@@ -333,31 +268,27 @@ public class MainActivity extends AppCompatActivity {
         message.setType(Message.Type.normal);
 
         try {
-            if (connection.isAuthenticated()) {
+            if (globalVariable.connection.isAuthenticated()) {
                 mychat.sendMessage(message);
             } else {
                 login();
             }
         } catch (SmackException.NotConnectedException e) {
-            Log.v("xmpp.SendMessage()", "msg Not sent!-Not Connected!");
+            Log.v(TAG, e.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.v(TAG, e.toString());
         }
     }
 
     private class MMessageListener implements ChatMessageListener {
+        Context context;
 
-        public MMessageListener(Context contxt) {
+        public MMessageListener(Context context) {
+            this.context = context;
         }
 
         @Override
-        public void processMessage(final org.jivesoftware.smack.chat.Chat chat,
-                                   final Message message) {
-            Log.v("MyXMPP_MESSAGE_LISTENER", "Xmpp message received: '"
-                + message);
-
-            System.out.println("Body-----" + message.getBody());
-
+        public void processMessage(final org.jivesoftware.smack.chat.Chat chat, final Message message) {
             if (message.getType() == Message.Type.chat
                 && message.getBody() != null) {
                 final ChatMessage chatMessage = new ChatMessage();
