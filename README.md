@@ -1,0 +1,1 @@
+Focuses on building an app for XMPP connections, for learning purposes
