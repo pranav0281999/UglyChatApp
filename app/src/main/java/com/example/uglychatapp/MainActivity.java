@@ -2,6 +2,7 @@ package com.example.uglychatapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.uglychatapp.database.LoginSQLiteDBHelper;
 import com.example.uglychatapp.models.ChatMessage;
 
 import org.jivesoftware.smack.ConnectionListener;
@@ -69,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_main_activity_logout) {
             globalVariable.connection.disconnect();
+
+            SQLiteDatabase database = new LoginSQLiteDBHelper(this).getReadableDatabase();
+            database.execSQL("delete from " + LoginSQLiteDBHelper.PERSON_TABLE_NAME);
             return true;
         }
         return (super.onOptionsItemSelected(item));
