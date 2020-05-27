@@ -20,7 +20,6 @@ import com.example.uglychatapp.database.LoginSQLiteDBHelper;
 import com.example.uglychatapp.models.ChatMessage;
 
 import org.jivesoftware.smack.ConnectionListener;
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
@@ -33,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     Button button;
     MainApplication globalVariable;
     EditText editTextMessage;
+    Chat mychat = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
             chatMessage.setMine(false);
             sendMessage(chatMessage);
         }
+
+        editTextMessage.setText("");
     }
 
     public void setup() {
@@ -175,9 +177,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void sendMessage(ChatMessage chatMessage) {
-        Chat mychat = null;
-
-        if (!MainApplication.chat_created) {
+        if (!MainApplication.chat_created || mychat == null) {
             mychat = ChatManager.getInstanceFor(globalVariable.connection).createChat(
                 chatMessage.getReceiver() + "@" + MainApplication.openfireHostname,
                 new MMessageListener(getApplicationContext()));
@@ -190,8 +190,6 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             mychat.sendMessage(message);
-        } catch (SmackException.NotConnectedException e) {
-            Log.v(TAG, e.toString());
         } catch (Exception e) {
             Log.v(TAG, e.toString());
         }
