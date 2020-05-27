@@ -1,10 +1,13 @@
 package com.example.uglychatapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,7 +17,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.uglychatapp.models.ChatMessage;
 
+import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
@@ -47,6 +52,28 @@ public class MainActivity extends AppCompatActivity {
         setup();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        globalVariable.connection.removeConnectionListener(connectionListener);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_main_activity_logout) {
+            globalVariable.connection.disconnect();
+            return true;
+        }
+        return (super.onOptionsItemSelected(item));
+    }
+
     public void sendMessage() {
         String messageString = editTextMessage.getText().toString();
 
@@ -74,7 +101,49 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         }
+
+        globalVariable.connection.addConnectionListener(connectionListener);
     }
+
+    ConnectionListener connectionListener = new ConnectionListener() {
+        @Override
+        public void connected(XMPPConnection connection) {
+            Log.v(TAG, "connected");
+        }
+
+        @Override
+        public void authenticated(XMPPConnection connection, boolean resumed) {
+            Log.v(TAG, "authenticated");
+        }
+
+        @Override
+        public void connectionClosed() {
+            Intent intent = new Intent(MainActivity.this, SplashActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
+
+        @Override
+        public void connectionClosedOnError(Exception e) {
+            Log.v(TAG, "connectionClosedOnError");
+        }
+
+        @Override
+        public void reconnectionSuccessful() {
+            Log.v(TAG, "reconnectionSuccessful");
+        }
+
+        @Override
+        public void reconnectingIn(int seconds) {
+            Log.v(TAG, "reconnectingIn");
+        }
+
+        @Override
+        public void reconnectionFailed(Exception e) {
+            Log.v(TAG, "reconnectionFailed");
+        }
+    };
 
     public void sendMessage(ChatMessage chatMessage) {
         Chat mychat = null;
