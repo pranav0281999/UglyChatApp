@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     Button button;
     MainApplication globalVariable;
+    EditText editTextMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +38,25 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setReceiver(MainApplication.receiver);
-                chatMessage.setBody("hello from " + MainApplication.sender);
-                chatMessage.setMine(false);
-                sendMessage(chatMessage);
+                sendMessage();
             }
         });
 
+        editTextMessage = findViewById(R.id.activity_main_et_msg);
+
         setup();
+    }
+
+    public void sendMessage() {
+        String messageString = editTextMessage.getText().toString();
+
+        if (!messageString.isEmpty()) {
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setReceiver(MainApplication.receiver);
+            chatMessage.setBody(messageString);
+            chatMessage.setMine(false);
+            sendMessage(chatMessage);
+        }
     }
 
     public void setup() {
