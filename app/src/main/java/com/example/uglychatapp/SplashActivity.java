@@ -102,36 +102,60 @@ public class SplashActivity extends AppCompatActivity {
         @Override
         public void connected(XMPPConnection connection) {
             startLoginActivity();
+
+            MainApplication.connected = true;
         }
 
         @Override
         public void authenticated(XMPPConnection connection, boolean resumed) {
             Log.v(TAG, "authenticated");
+
+            MainApplication.connected = true;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = true;
         }
 
         @Override
         public void connectionClosed() {
             Log.v(TAG, "connectionClosed");
+
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void connectionClosedOnError(Exception e) {
             Log.v(TAG, "connectionClosedOnError");
+
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectionSuccessful() {
             Log.v(TAG, "reconnectionSuccessful");
+
+            MainApplication.connected = true;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectingIn(int seconds) {
             Log.v(TAG, "reconnectingIn");
+
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectionFailed(Exception e) {
             Log.v(TAG, "reconnectionFailed");
+
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
     };
 

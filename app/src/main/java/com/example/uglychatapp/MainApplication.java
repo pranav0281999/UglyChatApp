@@ -15,6 +15,5 @@ public class MainApplication extends Application {
     public static boolean connected = false;
     public static boolean loggedin = false;
     public static boolean isconnecting = false;
-    public static boolean isToasted = true;
     public static boolean chat_created = false;
 }

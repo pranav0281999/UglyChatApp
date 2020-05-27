@@ -114,11 +114,17 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void connected(XMPPConnection connection) {
             Log.v(TAG, "connected");
+
+            MainApplication.connected = true;
         }
 
         @Override
         public void authenticated(XMPPConnection connection, boolean resumed) {
             Log.v(TAG, "authenticated");
+
+            MainApplication.connected = true;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = true;
         }
 
         @Override
@@ -127,26 +133,44 @@ public class MainActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
+
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void connectionClosedOnError(Exception e) {
             Log.v(TAG, "connectionClosedOnError");
+
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectionSuccessful() {
             Log.v(TAG, "reconnectionSuccessful");
+
+            MainApplication.connected = true;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectingIn(int seconds) {
             Log.v(TAG, "reconnectingIn");
+
+            MainApplication.loggedin = false;
         }
 
         @Override
         public void reconnectionFailed(Exception e) {
             Log.v(TAG, "reconnectionFailed");
+
+            MainApplication.connected = false;
+            MainApplication.chat_created = false;
+            MainApplication.loggedin = false;
         }
     };
 
