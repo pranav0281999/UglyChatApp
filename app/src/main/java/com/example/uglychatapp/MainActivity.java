@@ -15,7 +15,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.uglychatapp.adapters.AdapterChatMsgs;
 import com.example.uglychatapp.database.LoginSQLiteDBHelper;
 import com.example.uglychatapp.models.ChatMessage;
 
@@ -27,12 +30,18 @@ import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     Button button;
     MainApplication globalVariable;
     EditText editTextMessage;
     Chat mychat = null;
+    RecyclerView recyclerViewMsgs;
+    List<ChatMessage> chatMessageList;
+    AdapterChatMsgs adapterChatMsgs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         globalVariable = (MainApplication) getApplicationContext();
+        chatMessageList = new ArrayList<>();
 
         button = findViewById(R.id.activity_main_btn_sendmsg);
         button.setOnClickListener(new View.OnClickListener() {
@@ -50,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         editTextMessage = findViewById(R.id.activity_main_et_msg);
+        recyclerViewMsgs = findViewById(R.id.activity_main_rv_msgs);
+
+        adapterChatMsgs = new AdapterChatMsgs(chatMessageList);
+        recyclerViewMsgs.setAdapter(adapterChatMsgs);
+        recyclerViewMsgs.setLayoutManager(new LinearLayoutManager(this));
 
         setup();
     }
@@ -177,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void sendMessage(ChatMessage chatMessage) {
+        boolean msgSent = true;
         if (!MainApplication.chat_created || mychat == null) {
             mychat = ChatManager.getInstanceFor(globalVariable.connection).createChat(
                 chatMessage.getReceiver() + "@" + MainApplication.openfireHostname,
@@ -192,6 +208,20 @@ public class MainActivity extends AppCompatActivity {
             mychat.sendMessage(message);
         } catch (Exception e) {
             Log.v(TAG, e.toString());
+            msgSent = false;
+
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "Message not sent", Toast.LENGTH_LONG).show();
+                }
+            });
+        } finally {
+            if (msgSent) {
+                chatMessageList.add(chatMessage);
+
+                adapterChatMsgs.notifyDataSetChanged();
+            }
         }
     }
 
@@ -218,6 +248,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Toast.makeText(getApplicationContext(), chatMessage.getBody(), Toast.LENGTH_LONG).show();
+
+                    chatMessageList.add(chatMessage);
+                    adapterChatMsgs.notifyDataSetChanged();
                 }
             });
         }
