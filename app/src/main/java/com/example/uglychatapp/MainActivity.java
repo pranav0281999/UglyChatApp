@@ -219,8 +219,7 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             if (msgSent) {
                 chatMessageList.add(chatMessage);
-
-                adapterChatMsgs.notifyDataSetChanged();
+                adapterChatMsgs.notifyItemInserted(chatMessageList.size() - 1);
             }
         }
     }
@@ -251,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), chatMessage.getBody(), Toast.LENGTH_LONG).show();
 
                     chatMessageList.add(chatMessage);
-                    adapterChatMsgs.notifyDataSetChanged();
+                    adapterChatMsgs.notifyItemInserted(chatMessageList.size() - 1);
                 }
             });
         }
