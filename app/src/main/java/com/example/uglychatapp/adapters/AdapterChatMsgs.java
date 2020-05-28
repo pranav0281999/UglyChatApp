@@ -4,11 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.uglychatapp.MainApplication;
 import com.example.uglychatapp.R;
 import com.example.uglychatapp.models.ChatMessage;
 
@@ -35,18 +37,29 @@ public class AdapterChatMsgs extends RecyclerView.Adapter<AdapterChatMsgs.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatMessage chatMessage = chatMessageList.get(position);
-        TextView tvMsg = holder.tvMsg;
-        tvMsg.setText(chatMessage.getBody());
+        TextView tvMsgSent = holder.tvMsgSent;
+        TextView tvMsgReceive = holder.tvMsgReceive;
+        RelativeLayout relativeLayout = holder.relativeLayout;
+        tvMsgSent.setText(chatMessage.getBody());
+        tvMsgReceive.setText(chatMessage.getBody());
 
+        if (chatMessage.getReceiver().equals(MainApplication.sender)) {
+            tvMsgSent.setVisibility(View.GONE);
+        } else {
+            tvMsgReceive.setVisibility(View.GONE);
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvMsg;
+        public TextView tvMsgSent, tvMsgReceive;
+        public RelativeLayout relativeLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            tvMsg = itemView.findViewById(R.id.listitem_chat_msg_tv_msg);
+            tvMsgSent = itemView.findViewById(R.id.listitem_chat_msg_tv_msg_sent);
+            tvMsgReceive = itemView.findViewById(R.id.listitem_chat_msg_tv_msg_receive);
+            relativeLayout = itemView.findViewById(R.id.listitem_chat_msg_rl);
         }
     }
 

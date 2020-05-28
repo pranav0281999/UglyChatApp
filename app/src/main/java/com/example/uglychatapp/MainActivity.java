@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
         final Message message = new Message();
         message.setBody(chatMessage.getBody());
+        message.addBody("receiver", chatMessage.getReceiver());
         message.setType(Message.Type.normal);
 
         try {
@@ -237,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 && message.getBody() != null) {
                 final ChatMessage chatMessage = new ChatMessage();
                 chatMessage.setBody(message.getBody());
+                chatMessage.setReceiver(message.getBody("receiver"));
 
                 processMessage(chatMessage);
             }
