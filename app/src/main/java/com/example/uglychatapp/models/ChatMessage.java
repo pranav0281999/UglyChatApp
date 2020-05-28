@@ -11,17 +11,7 @@ public class ChatMessage implements Serializable {
         this.body = body;
     }
 
-    String body;
-
-    public boolean isMine() {
-        return isMine;
-    }
-
-    public void setMine(boolean mine) {
-        isMine = mine;
-    }
-
-    boolean isMine;
+    private String body;
 
     public String getReceiver() {
         return receiver;
@@ -31,5 +21,5 @@ public class ChatMessage implements Serializable {
         this.receiver = receiver;
     }
 
-    String receiver;
+    private String receiver;
 }

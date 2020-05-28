@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setReceiver(MainApplication.receiver);
             chatMessage.setBody(messageString);
-            chatMessage.setMine(false);
             sendMessage(chatMessage);
         }
 
