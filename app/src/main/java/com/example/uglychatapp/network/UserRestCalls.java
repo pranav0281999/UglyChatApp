@@ -3,6 +3,8 @@ package com.example.uglychatapp.network;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.uglychatapp.MainApplication;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,7 +31,7 @@ public class UserRestCalls {
         @Override
         public String doInBackground(Void... params) {
             try {
-                URL url = new URL("http://192.168.0.114:5000/users/allUsers");
+                URL url = new URL("http://" + MainApplication.serverNode + ":" + MainApplication.serverNodePort + "/users/allUsers");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("Content-Type", "application/json");
