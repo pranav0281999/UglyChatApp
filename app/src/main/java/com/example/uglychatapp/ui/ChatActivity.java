@@ -35,8 +35,8 @@ import org.jivesoftware.smack.packet.Message;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+public class ChatActivity extends AppCompatActivity {
+    private static final String TAG = "ChatActivity";
     Button button;
     MainApplication globalVariable;
     EditText editTextMessage;
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
 
         globalVariable = (MainApplication) getApplicationContext();
         chatMessageList = new ArrayList<>();
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void connectionClosed() {
-            Intent intent = new Intent(MainActivity.this, SplashActivity.class);
+            Intent intent = new Intent(ChatActivity.this, SplashActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
