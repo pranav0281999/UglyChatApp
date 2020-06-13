@@ -1,6 +1,7 @@
 package com.example.uglychatapp.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +11,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.uglychatapp.MainApplication;
 import com.example.uglychatapp.R;
+import com.example.uglychatapp.ui.ChatActivity;
 
 import java.util.ArrayList;
 
 public class AdapterUsers extends RecyclerView.Adapter<AdapterUsers.ViewHolder> {
     private ArrayList<String> userList;
+    MainApplication globalVariable;
 
-    public AdapterUsers(ArrayList<String> userList) {
+    public AdapterUsers(MainApplication globalVariable, ArrayList<String> userList) {
         this.userList = userList;
+        this.globalVariable = globalVariable;
     }
 
     @NonNull
@@ -34,10 +39,20 @@ public class AdapterUsers extends RecyclerView.Adapter<AdapterUsers.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String username = userList.get(position);
+        final String username = userList.get(position);
         TextView tvUsername = holder.tvUsername;
         RelativeLayout relativeLayout = holder.relativeLayout;
         tvUsername.setText(username);
+
+        relativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(globalVariable, ChatActivity.class);
+                intent.putExtra("receiver", username);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                globalVariable.startActivity(intent);
+            }
+        });
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

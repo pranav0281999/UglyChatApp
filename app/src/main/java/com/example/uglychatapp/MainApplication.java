@@ -12,7 +12,7 @@ public class MainApplication extends Application {
     public static String serverNode = "192.168.0.167";
     public static int serverXmppPort = 5222;
     public static int serverNodePort = 5000;
-    public static String sender = "testuser1", receiver = "testuser2";
+    public static String currentUserName;
     public static String serverXmppHostname = "openfire-server";
     public static boolean connected = false;
     public static boolean loggedin = false;

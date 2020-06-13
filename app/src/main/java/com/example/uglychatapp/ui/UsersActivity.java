@@ -40,7 +40,7 @@ public class UsersActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.activity_users_pb);
         recyclerViewUsers = findViewById(R.id.activity_users_rv_users);
 
-        adapterUsers = new AdapterUsers(listUsers);
+        adapterUsers = new AdapterUsers(globalVariable, listUsers);
         recyclerViewUsers.setAdapter(adapterUsers);
         recyclerViewUsers.setLayoutManager(new LinearLayoutManager(this));
 
@@ -63,6 +63,8 @@ public class UsersActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+
+                    listUsers.remove(MainApplication.currentUserName);
 
                     adapterUsers.notifyDataSetChanged();
                 } else {

@@ -43,7 +43,7 @@ public class AdapterChatMsgs extends RecyclerView.Adapter<AdapterChatMsgs.ViewHo
         tvMsgSent.setText(chatMessage.getBody());
         tvMsgReceive.setText(chatMessage.getBody());
 
-        if (chatMessage.getReceiver().equals(MainApplication.sender)) {
+        if (chatMessage.getReceiver().equals(MainApplication.currentUserName)) {
             tvMsgSent.setVisibility(View.GONE);
         } else {
             tvMsgReceive.setVisibility(View.GONE);

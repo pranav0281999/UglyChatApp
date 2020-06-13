@@ -43,7 +43,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (validate()) {
-                    signin();
+                    String username, password;
+                    username = et_username.getText().toString();
+                    password = et_password.getText().toString();
+
+                    signin(username, password);
                 }
             }
         });
@@ -81,26 +85,11 @@ public class LoginActivity extends AppCompatActivity {
         Toast.makeText(LoginActivity.this, "Couldn't authenticate", Toast.LENGTH_LONG).show();
     }
 
-    private void signin() {
-        String username, password;
-        username = et_username.getText().toString();
-        password = et_password.getText().toString();
-
-        try {
-            globalVariable.connection.login(username, password);
-
-            saveToDB(username, password);
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            showLoginError();
-        }
-    }
-
     private void signin(String username, String password) {
         try {
             globalVariable.connection.login(username, password);
 
+            MainApplication.currentUserName = username;
             saveToDB(username, password);
         } catch (Exception e) {
             e.printStackTrace();

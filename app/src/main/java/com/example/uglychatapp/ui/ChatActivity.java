@@ -44,11 +44,18 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView recyclerViewMsgs;
     List<ChatMessage> chatMessageList;
     AdapterChatMsgs adapterChatMsgs;
+    String receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        Intent intent = getIntent();
+
+        if (intent.hasExtra("receiver")) {
+            receiver = intent.getStringExtra("receiver");
+        }
 
         globalVariable = (MainApplication) getApplicationContext();
         chatMessageList = new ArrayList<>();
@@ -101,7 +108,7 @@ public class ChatActivity extends AppCompatActivity {
 
         if (!messageString.isEmpty()) {
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setReceiver(MainApplication.receiver);
+            chatMessage.setReceiver(receiver);
             chatMessage.setBody(messageString);
             sendMessage(chatMessage);
         }
