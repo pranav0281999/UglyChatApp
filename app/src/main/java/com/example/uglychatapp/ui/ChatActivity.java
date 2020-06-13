@@ -2,13 +2,10 @@ package com.example.uglychatapp.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.uglychatapp.MainApplication;
 import com.example.uglychatapp.R;
 import com.example.uglychatapp.adapters.AdapterChatMsgs;
-import com.example.uglychatapp.database.LoginSQLiteDBHelper;
 import com.example.uglychatapp.models.ChatMessage;
 
 import org.jivesoftware.smack.ConnectionListener;
@@ -84,25 +80,6 @@ public class ChatActivity extends AppCompatActivity {
         globalVariable.connection.removeConnectionListener(connectionListener);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_main_activity_logout) {
-            globalVariable.connection.disconnect();
-
-            SQLiteDatabase database = new LoginSQLiteDBHelper(this).getReadableDatabase();
-            database.execSQL("delete from " + LoginSQLiteDBHelper.PERSON_TABLE_NAME);
-            return true;
-        }
-        return (super.onOptionsItemSelected(item));
-    }
-
     public void sendMessage() {
         String messageString = editTextMessage.getText().toString();
 
@@ -154,10 +131,7 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public void connectionClosed() {
-            Intent intent = new Intent(ChatActivity.this, SplashActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
+            Log.v(TAG, "connectionClosed");
 
             MainApplication.connected = false;
             MainApplication.chat_created = false;
