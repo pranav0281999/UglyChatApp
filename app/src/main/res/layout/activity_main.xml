@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#CCFFFF"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".ui.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/activity_main_rv_msgs"

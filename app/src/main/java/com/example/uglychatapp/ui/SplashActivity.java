@@ -1,4 +1,4 @@
-package com.example.uglychatapp;
+package com.example.uglychatapp.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.uglychatapp.MainApplication;
+import com.example.uglychatapp.R;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.jivesoftware.smack.ConnectionConfiguration;

@@ -1,4 +1,4 @@
-package com.example.uglychatapp;
+package com.example.uglychatapp.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.uglychatapp.MainApplication;
+import com.example.uglychatapp.R;
 import com.example.uglychatapp.database.LoginSQLiteDBHelper;
 
 import org.jivesoftware.smack.ConnectionListener;

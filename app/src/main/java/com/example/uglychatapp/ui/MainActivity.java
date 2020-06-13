@@ -1,4 +1,4 @@
-package com.example.uglychatapp;
+package com.example.uglychatapp.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.uglychatapp.MainApplication;
+import com.example.uglychatapp.R;
 import com.example.uglychatapp.adapters.AdapterChatMsgs;
 import com.example.uglychatapp.database.LoginSQLiteDBHelper;
 import com.example.uglychatapp.models.ChatMessage;
