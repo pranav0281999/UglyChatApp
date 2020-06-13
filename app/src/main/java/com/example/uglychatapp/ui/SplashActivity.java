@@ -39,9 +39,9 @@ public class SplashActivity extends AppCompatActivity {
     public void initialiseConnection() {
         XMPPTCPConnectionConfiguration.Builder config = XMPPTCPConnectionConfiguration.builder();
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
-        config.setServiceName(MainApplication.server);
-        config.setHost(MainApplication.server);
-        config.setPort(MainApplication.serverPort);
+        config.setServiceName(MainApplication.serverXmpp);
+        config.setHost(MainApplication.serverXmpp);
+        config.setPort(MainApplication.serverXmppPort);
         config.setDebuggerEnabled(true);
         XMPPTCPConnection.setUseStreamManagementResumptiodDefault(true);
         XMPPTCPConnection.setUseStreamManagementDefault(true);

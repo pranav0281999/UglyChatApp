@@ -196,7 +196,7 @@ public class ChatActivity extends AppCompatActivity {
         boolean msgSent = true;
         if (!MainApplication.chat_created || mychat == null) {
             mychat = ChatManager.getInstanceFor(globalVariable.connection).createChat(
-                chatMessage.getReceiver() + "@" + MainApplication.openfireHostname,
+                chatMessage.getReceiver() + "@" + MainApplication.serverXmppHostname,
                 new MMessageListener(getApplicationContext()));
             MainApplication.chat_created = true;
         }
