@@ -5,15 +5,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:usesCleartextTraffic="true"
         android:name=".MainApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".ui.UsersActivity"></activity>
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".ui.RegisterActivity"></activity>
+        <activity android:name=".ui.UsersActivity" />
         <activity
             android:name=".ui.SplashActivity"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
@@ -24,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.ChatActivity" />
-        <activity android:name=".ui.LoginActivity"></activity>
+        <activity android:name=".ui.LoginActivity" />
     </application>
 
 </manifest>

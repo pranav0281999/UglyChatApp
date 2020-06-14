@@ -42,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
         config.setServiceName(MainApplication.serverXmpp);
         config.setHost(MainApplication.serverXmpp);
         config.setPort(MainApplication.serverXmppPort);
+        config.setServiceName(MainApplication.serverXmppHostname);
         config.setDebuggerEnabled(true);
         XMPPTCPConnection.setUseStreamManagementResumptiodDefault(true);
         XMPPTCPConnection.setUseStreamManagementDefault(true);

@@ -2,7 +2,6 @@ package com.example.uglychatapp.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,27 +19,28 @@ import com.example.uglychatapp.database.LoginSQLiteDBHelper;
 
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 
-public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = "LoginActivity";
+public class RegisterActivity extends AppCompatActivity {
+    private static final String TAG = "RegisterActivity";
 
     MainApplication globalVariable;
     EditText etUsername, etPassword;
-    TextView tvRegister;
     Button btnLogin;
+    TextView tvLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_register);
 
         globalVariable = (MainApplication) getApplicationContext();
         globalVariable.connection.addConnectionListener(connectionListener);
 
-        etUsername = findViewById(R.id.activity_login_et_username);
-        etPassword = findViewById(R.id.activity_login_et_password);
-        btnLogin = findViewById(R.id.activity_login_btn_login);
-        tvRegister = findViewById(R.id.activity_login_tv_register);
+        etUsername = findViewById(R.id.activity_register_et_username);
+        etPassword = findViewById(R.id.activity_register_et_password);
+        btnLogin = findViewById(R.id.activity_register_btn_register);
+        tvLogin = findViewById(R.id.activity_register_tv_login);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,19 +50,17 @@ public class LoginActivity extends AppCompatActivity {
                     username = etUsername.getText().toString();
                     password = etPassword.getText().toString();
 
-                    signin(username, password);
+                    register(username, password);
                 }
             }
         });
 
-        tvRegister.setOnClickListener(new View.OnClickListener() {
+        tvLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openRegisterActivity();
+                openLoginActivity();
             }
         });
-
-        readFromDB();
     }
 
     private boolean validate() {
@@ -86,29 +84,33 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void openUserActivity() {
-        Intent intent = new Intent(LoginActivity.this, UsersActivity.class);
+        Intent intent = new Intent(RegisterActivity.this, UsersActivity.class);
         startActivity(intent);
         finish();
     }
 
-    public void openRegisterActivity() {
-        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+    public void openLoginActivity() {
+        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }
 
     public void showLoginError() {
-        Toast.makeText(LoginActivity.this, "Couldn't authenticate", Toast.LENGTH_LONG).show();
+        Toast.makeText(RegisterActivity.this, "Couldn't register", Toast.LENGTH_LONG).show();
     }
 
-    private void signin(String username, String password) {
+    private void register(String username, String password) {
         try {
-            globalVariable.connection.login(username, password);
+            AccountManager accountManager = AccountManager.getInstance(globalVariable.connection);
+            accountManager.sensitiveOperationOverInsecureConnection(true);
+            accountManager.createAccount(username, password);
 
             MainApplication.currentUserName = username;
             saveToDB(username, password);
+
+            globalVariable.connection.login(username, password);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.toString());
 
             showLoginError();
         }
@@ -121,40 +123,6 @@ public class LoginActivity extends AppCompatActivity {
         values.put(LoginSQLiteDBHelper.PERSON_COLUMN_PASSWORD, password);
         long newRowId = database.insert(LoginSQLiteDBHelper.PERSON_TABLE_NAME, null, values);
     }
-
-    private void readFromDB() {
-        String username = null, password = null;
-
-        SQLiteDatabase database = new LoginSQLiteDBHelper(this).getReadableDatabase();
-
-        String[] projection = {
-            LoginSQLiteDBHelper.PERSON_COLUMN_ID,
-            LoginSQLiteDBHelper.PERSON_COLUMN_NAME,
-            LoginSQLiteDBHelper.PERSON_COLUMN_PASSWORD
-        };
-
-        Cursor cursor = database.query(
-            LoginSQLiteDBHelper.PERSON_TABLE_NAME,   // The table to query
-            projection,                               // The columns to return
-            null,                                // The columns for the WHERE clause
-            null,                            // The values for the WHERE clause
-            null,                                     // don't group the rows
-            null,                                     // don't filter by row groups
-            null                                      // don't sort
-        );
-
-        if (cursor.moveToLast()) {
-            username = cursor.getString(cursor.getColumnIndexOrThrow(LoginSQLiteDBHelper.PERSON_COLUMN_NAME));
-            password = cursor.getString(cursor.getColumnIndexOrThrow(LoginSQLiteDBHelper.PERSON_COLUMN_PASSWORD));
-        }
-
-        if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
-            signin(username, password);
-        }
-
-        cursor.close();
-    }
-
 
     ConnectionListener connectionListener = new ConnectionListener() {
         @Override
