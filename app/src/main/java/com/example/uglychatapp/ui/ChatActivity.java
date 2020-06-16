@@ -88,9 +88,8 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_chat_activity_send_image) {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            startActivityForResult(intent, MainApplication.UPLOAD_IMAGE);
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(galleryIntent, MainApplication.UPLOAD_IMAGE);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_audio) {
             return true;
