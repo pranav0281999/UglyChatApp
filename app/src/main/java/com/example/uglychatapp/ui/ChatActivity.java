@@ -1,10 +1,14 @@
 package com.example.uglychatapp.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -86,6 +90,9 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_chat_activity_send_image) {
+            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+            photoPickerIntent.setType("image/*");
+            startActivityForResult(photoPickerIntent, MainApplication.UPLOAD_IMAGE);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_audio) {
             return true;
@@ -95,6 +102,21 @@ public class ChatActivity extends AppCompatActivity {
             return true;
         }
         return (super.onOptionsItemSelected(item));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_IMAGE && data != null) {
+            Uri selectedImage = data.getData();
+
+            if (selectedImage != null) {
+                Intent intent = new Intent(ChatActivity.this, DisplayImageActivity.class);
+                intent.putExtra("imagePath", selectedImage.toString());
+                startActivity(intent);
+            }
+        }
     }
 
     @Override

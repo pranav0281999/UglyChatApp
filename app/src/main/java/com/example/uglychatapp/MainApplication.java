@@ -18,4 +18,9 @@ public class MainApplication extends Application {
     public static boolean loggedin = false;
     public static boolean isconnecting = false;
     public static boolean chat_created = false;
+
+    public static int UPLOAD_IMAGE = 101;
+    public static int UPLOAD_VIDEO = 102;
+    public static int UPLOAD_AUDIO = 103;
+    public static int UPLOAD_FILE = 104;
 }
