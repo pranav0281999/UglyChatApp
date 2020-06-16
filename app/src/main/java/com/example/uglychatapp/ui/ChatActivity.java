@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -72,6 +74,27 @@ public class ChatActivity extends AppCompatActivity {
         recyclerViewMsgs.setLayoutManager(new LinearLayoutManager(this));
 
         setup();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_chat_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_chat_activity_send_image) {
+            return true;
+        } else if (item.getItemId() == R.id.menu_chat_activity_send_audio) {
+            return true;
+        } else if (item.getItemId() == R.id.menu_chat_activity_send_video) {
+            return true;
+        } else if (item.getItemId() == R.id.menu_chat_activity_send_file) {
+            return true;
+        }
+        return (super.onOptionsItemSelected(item));
     }
 
     @Override

@@ -9,4 +9,8 @@
     <string name="hello_world">Hello World</string>
     <string name="couldnt_fetch_users">Couldn\'t fetch users</string>
     <string name="register">Register</string>
+    <string name="send_image">Send Image</string>
+    <string name="send_audio">Send Audio</string>
+    <string name="send_video">Send Video</string>
+    <string name="send_file">Send File</string>
 </resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_chat_activity_send_image"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="never"
+        android:title="@string/send_image"/>
+    <item
+        android:id="@+id/menu_chat_activity_send_audio"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="never"
+        android:title="@string/send_audio"/>
+    <item
+        android:id="@+id/menu_chat_activity_send_video"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="never"
+        android:title="@string/send_video"/>
+    <item
+        android:id="@+id/menu_chat_activity_send_file"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="never"
+        android:title="@string/send_file"/>
+</menu>
