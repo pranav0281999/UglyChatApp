@@ -3,10 +3,12 @@ package com.example.uglychatapp.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -92,6 +94,8 @@ public class ChatActivity extends AppCompatActivity {
             startActivityForResult(galleryIntent, MainApplication.UPLOAD_IMAGE);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_audio) {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(galleryIntent, MainApplication.UPLOAD_AUDIO);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_video) {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
@@ -121,8 +125,25 @@ public class ChatActivity extends AppCompatActivity {
             Intent intent = new Intent(ChatActivity.this, DisplayVideoActivity.class);
             intent.putExtra("videoPath", contentURI.toString());
             startActivity(intent);
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_AUDIO && data != null) {
+            Uri contentURI = data.getData();
 
+            Intent intent = new Intent(ChatActivity.this, DisplayAudioActivity.class);
+            intent.putExtra("audioPath", getPath(contentURI));
+            startActivity(intent);
         }
+    }
+
+    public String getPath(Uri uri) {
+        String[] projection = {MediaStore.Audio.Media.DATA};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+
+        if (cursor != null) {
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } else
+            return null;
     }
 
     @Override

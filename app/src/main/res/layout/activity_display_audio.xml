@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ripple_material_light"
+    android:orientation="vertical"
+    tools:context=".ui.DisplayAudioActivity">
+
+    <ImageView
+        android:id="@+id/activity_display_audio_iv"
+        android:layout_width="200dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="8"
+        android:src="@mipmap/ic_launcher_round" />
+
+    <MediaController
+        android:id="@+id/activity_display_audio_mc"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:visibility="visible" />
+
+</LinearLayout>
