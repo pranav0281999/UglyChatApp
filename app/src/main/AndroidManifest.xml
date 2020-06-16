@@ -3,6 +3,9 @@
     package="com.example.uglychatapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:name=".MainApplication"
@@ -13,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.DisplayImageActivity"></activity>
+        <activity android:name=".ui.DisplayVideoActivity"/>
+        <activity android:name=".ui.DisplayImageActivity" />
         <activity android:name=".ui.RegisterActivity" />
         <activity android:name=".ui.UsersActivity" />
         <activity

@@ -3,12 +3,10 @@ package com.example.uglychatapp.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -90,13 +88,15 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_chat_activity_send_image) {
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
-            startActivityForResult(photoPickerIntent, MainApplication.UPLOAD_IMAGE);
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, MainApplication.UPLOAD_IMAGE);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_audio) {
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_video) {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(galleryIntent, MainApplication.UPLOAD_VIDEO);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_file) {
             return true;
@@ -116,6 +116,13 @@ public class ChatActivity extends AppCompatActivity {
                 intent.putExtra("imagePath", selectedImage.toString());
                 startActivity(intent);
             }
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_VIDEO && data != null) {
+            Uri contentURI = data.getData();
+
+            Intent intent = new Intent(ChatActivity.this, DisplayVideoActivity.class);
+            intent.putExtra("videoPath", contentURI.toString());
+            startActivity(intent);
+
         }
     }
 
