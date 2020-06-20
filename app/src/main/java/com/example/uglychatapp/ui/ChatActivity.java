@@ -102,6 +102,9 @@ public class ChatActivity extends AppCompatActivity {
             startActivityForResult(galleryIntent, MainApplication.UPLOAD_VIDEO);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_file) {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            startActivityForResult(intent, MainApplication.UPLOAD_FILE);
             return true;
         }
         return (super.onOptionsItemSelected(item));
@@ -131,6 +134,11 @@ public class ChatActivity extends AppCompatActivity {
             Intent intent = new Intent(ChatActivity.this, DisplayAudioActivity.class);
             intent.putExtra("audioPath", getPath(contentURI));
             startActivity(intent);
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_FILE && data != null) {
+            Uri contentURI = data.getData();
+            String filePath = getFilePath(contentURI);
+
+            Log.v(TAG, filePath);
         }
     }
 
@@ -144,6 +152,24 @@ public class ChatActivity extends AppCompatActivity {
             return cursor.getString(column_index);
         } else
             return null;
+    }
+
+    public String getFilePath(Uri uri) {
+
+        String path = null;
+        String[] projection = {MediaStore.Files.FileColumns.DATA};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+
+        if (cursor == null) {
+            path = uri.getPath();
+        } else {
+            cursor.moveToFirst();
+            int column_index = cursor.getColumnIndexOrThrow(projection[0]);
+            path = cursor.getString(column_index);
+            cursor.close();
+        }
+
+        return ((path == null || path.isEmpty()) ? (uri.getPath()) : path);
     }
 
     @Override
