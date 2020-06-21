@@ -1,6 +1,8 @@
 package com.example.uglychatapp.ui
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,10 +18,12 @@ import net.gotev.uploadservice.observer.request.RequestObserverDelegate
 import net.gotev.uploadservice.protocols.multipart.MultipartUploadRequest
 import java.util.*
 
+
 class DisplayImageActivity : AppCompatActivity() {
     var imageView: ImageView? = null
     var btnSend: Button? = null
     var imagePath: String? = null
+    val imageUuid = UUID.randomUUID().toString()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,12 +48,10 @@ class DisplayImageActivity : AppCompatActivity() {
     }
 
     private fun sendImage() {
-        val uuid = UUID.randomUUID().toString()
-
         try {
             val multipartUploadRequest = MultipartUploadRequest(this, serverUrl = "http://" + MainApplication.serverNode + ":" + MainApplication.serverNodePort + "/chat/image")
                     .setMethod("POST")
-                    .addHeader("filename", uuid)
+                    .addHeader("filename", imageUuid)
                     .addFileToUpload(
                             filePath = imagePath!!,
                             parameterName = "image"
@@ -61,6 +63,9 @@ class DisplayImageActivity : AppCompatActivity() {
                 }
 
                 override fun onSuccess(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {
+                    val returnIntent = Intent()
+                    returnIntent.putExtra("imageUuid", imageUuid)
+                    setResult(Activity.RESULT_OK, returnIntent)
                     finish()
                 }
 

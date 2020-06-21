@@ -46,16 +46,28 @@ class MainApplication : Application() {
         var chat_created = false
 
         @JvmField
-        var UPLOAD_IMAGE = 101
+        var PICK_IMAGE = 101
 
         @JvmField
-        var UPLOAD_VIDEO = 102
+        var PICK_VIDEO = 102
 
         @JvmField
-        var UPLOAD_AUDIO = 103
+        var PICK_AUDIO = 103
 
         @JvmField
-        var UPLOAD_FILE = 104
+        var PICK_FILE = 104
+
+        @JvmField
+        var UPLOAD_IMAGE = 105
+
+        @JvmField
+        var UPLOAD_VIDEO = 106
+
+        @JvmField
+        var UPLOAD_AUDIO = 107
+
+        @JvmField
+        var UPLOAD_FILE = 108
 
         const val notificationChannelID = "TestChannel"
     }

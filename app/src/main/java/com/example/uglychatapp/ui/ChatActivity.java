@@ -36,6 +36,7 @@ import org.jivesoftware.smack.packet.Message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
@@ -91,20 +92,20 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_chat_activity_send_image) {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(galleryIntent, MainApplication.UPLOAD_IMAGE);
+            startActivityForResult(galleryIntent, MainApplication.PICK_IMAGE);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_audio) {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(galleryIntent, MainApplication.UPLOAD_AUDIO);
+            startActivityForResult(galleryIntent, MainApplication.PICK_AUDIO);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_video) {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(galleryIntent, MainApplication.UPLOAD_VIDEO);
+            startActivityForResult(galleryIntent, MainApplication.PICK_VIDEO);
             return true;
         } else if (item.getItemId() == R.id.menu_chat_activity_send_file) {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("*/*");
-            startActivityForResult(intent, MainApplication.UPLOAD_FILE);
+            startActivityForResult(intent, MainApplication.PICK_FILE);
             return true;
         }
         return (super.onOptionsItemSelected(item));
@@ -114,31 +115,36 @@ public class ChatActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_IMAGE && data != null) {
+        if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.PICK_IMAGE && data != null) {
             Uri selectedImage = data.getData();
 
             if (selectedImage != null) {
                 Intent intent = new Intent(ChatActivity.this, DisplayImageActivity.class);
                 intent.putExtra("imagePath", selectedImage.toString());
-                startActivity(intent);
+                startActivityForResult(intent, MainApplication.UPLOAD_IMAGE);
             }
-        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_VIDEO && data != null) {
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.PICK_VIDEO && data != null) {
             Uri contentURI = data.getData();
 
             Intent intent = new Intent(ChatActivity.this, DisplayVideoActivity.class);
             intent.putExtra("videoPath", contentURI.toString());
             startActivity(intent);
-        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_AUDIO && data != null) {
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.PICK_AUDIO && data != null) {
             Uri contentURI = data.getData();
 
             Intent intent = new Intent(ChatActivity.this, DisplayAudioActivity.class);
             intent.putExtra("audioPath", getPath(contentURI));
             startActivity(intent);
-        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_FILE && data != null) {
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.PICK_FILE && data != null) {
             Uri contentURI = data.getData();
             String filePath = getFilePath(contentURI);
 
             Log.v(TAG, filePath);
+        } else if (resultCode == Activity.RESULT_OK && requestCode == MainApplication.UPLOAD_IMAGE && data != null) {
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setReceiverUsername(receiver);
+            chatMessage.setBody(data.getStringExtra("imageUuid"));
+            sendImageMessage(chatMessage);
         }
     }
 
@@ -283,7 +289,46 @@ public class ChatActivity extends AppCompatActivity {
         final Message message = new Message();
         message.setBody(chatMessage.getBody());
         message.addBody("receiver", chatMessage.getReceiverUsername());
-        message.setType(Message.Type.normal);
+        message.setType(Message.Type.chat);
+
+        try {
+            mychat.sendMessage(message);
+        } catch (Exception e) {
+            Log.v(TAG, e.toString());
+            msgSent = false;
+
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "Message not sent", Toast.LENGTH_LONG).show();
+                }
+            });
+        } finally {
+            if (msgSent) {
+                chatMessageList.add(chatMessage);
+                adapterChatMsgs.notifyItemInserted(chatMessageList.size() - 1);
+            }
+        }
+    }
+
+    public void sendImageMessage(ChatMessage chatMessage) {
+        boolean msgSent = true;
+
+        if (!MainApplication.chat_created || mychat == null) {
+            mychat = ChatManager.getInstanceFor(globalVariable.connection)
+                .createChat(chatMessage.getReceiverUsername() + "@" + MainApplication.serverXmppHostname, new MMessageListener(getApplicationContext()));
+            MainApplication.chat_created = true;
+        }
+
+        String stanzaUuid = UUID.randomUUID().toString();
+
+        final Message message = new Message();
+        message.setBody(chatMessage.getBody());
+        message.setType(Message.Type.chat);
+        message.addBody("receiver", chatMessage.getReceiverUsername());
+        message.setStanzaId(stanzaUuid + "@image");
+        message.setFrom(MainApplication.currentUserName + "@" + MainApplication.serverXmppHostname);
+        message.setTo(chatMessage.getReceiverUsername() + "@" + MainApplication.serverXmppHostname);
 
         try {
             mychat.sendMessage(message);
