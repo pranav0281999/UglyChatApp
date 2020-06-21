@@ -183,7 +183,7 @@ public class ChatActivity extends AppCompatActivity {
 
         if (!messageString.isEmpty()) {
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setReceiver(receiver);
+            chatMessage.setReceiverUsername(receiver);
             chatMessage.setBody(messageString);
             sendMessage(chatMessage);
         }
@@ -275,14 +275,14 @@ public class ChatActivity extends AppCompatActivity {
         boolean msgSent = true;
         if (!MainApplication.chat_created || mychat == null) {
             mychat = ChatManager.getInstanceFor(globalVariable.connection).createChat(
-                chatMessage.getReceiver() + "@" + MainApplication.serverXmppHostname,
+                chatMessage.getReceiverUsername() + "@" + MainApplication.serverXmppHostname,
                 new MMessageListener(getApplicationContext()));
             MainApplication.chat_created = true;
         }
 
         final Message message = new Message();
         message.setBody(chatMessage.getBody());
-        message.addBody("receiver", chatMessage.getReceiver());
+        message.addBody("receiver", chatMessage.getReceiverUsername());
         message.setType(Message.Type.normal);
 
         try {
@@ -318,7 +318,7 @@ public class ChatActivity extends AppCompatActivity {
                 && message.getBody() != null) {
                 final ChatMessage chatMessage = new ChatMessage();
                 chatMessage.setBody(message.getBody());
-                chatMessage.setReceiver(message.getBody("receiver"));
+                chatMessage.setReceiverUsername(message.getBody("receiver"));
 
                 processMessage(chatMessage);
             }
