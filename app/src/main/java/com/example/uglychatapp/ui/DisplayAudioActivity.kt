@@ -1,6 +1,6 @@
 package com.example.uglychatapp.ui
 
-import android.app.Activity
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -9,14 +9,20 @@ import android.view.MotionEvent
 import android.widget.ImageView
 import android.widget.MediaController
 import android.widget.MediaController.MediaPlayerControl
+import androidx.appcompat.app.AppCompatActivity
+import com.example.uglychatapp.MainApplication
 import com.example.uglychatapp.R
+import net.gotev.uploadservice.data.UploadInfo
+import net.gotev.uploadservice.network.ServerResponse
+import net.gotev.uploadservice.observer.request.RequestObserverDelegate
+import net.gotev.uploadservice.protocols.multipart.MultipartUploadRequest
+import java.util.*
 
-class DisplayAudioActivity : Activity(), MediaPlayerControl {
+class DisplayAudioActivity : AppCompatActivity(), MediaPlayerControl {
 
     var media_Controller: MediaController? = null
     var musicPlayerImage: ImageView? = null
     var mediaPlayer: MediaPlayer? = null
-    var filepath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +30,7 @@ class DisplayAudioActivity : Activity(), MediaPlayerControl {
         setContentView(R.layout.activity_display_audio)
 
         if (intent.hasExtra("audioPath")) {
-
-            filepath = intent.getStringExtra("audioPath")
+            val audioPath = intent.getStringExtra("audioPath")
 
             mediaPlayer = MediaPlayer()
             media_Controller = MediaController(this)
@@ -36,12 +41,49 @@ class DisplayAudioActivity : Activity(), MediaPlayerControl {
             // https://medium.com/@sriramaripirala/android-10-open-failed-eacces-permission-denied-da8b630a89df
             try {
                 mediaPlayer!!.setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-                mediaPlayer!!.setDataSource(filepath)
+                mediaPlayer!!.setDataSource(audioPath)
                 mediaPlayer!!.prepare()
             } catch (e: Exception) {
                 Log.v(TAG, e.toString())
             }
 
+            val uuid = UUID.randomUUID().toString()
+
+            try {
+                val multipartUploadRequest = MultipartUploadRequest(this, serverUrl = "http://" + MainApplication.serverNode + ":" + MainApplication.serverNodePort + "/chat/audio")
+                        .setMethod("POST")
+                        .addHeader("filename", uuid)
+                        .addFileToUpload(
+                                filePath = audioPath,
+                                parameterName = "audio"
+                        )
+
+                multipartUploadRequest.subscribe(this, this, object : RequestObserverDelegate {
+                    override fun onProgress(context: Context, uploadInfo: UploadInfo) {
+                        Log.v(TAG, uploadInfo.uploadedBytes.toString())
+                    }
+
+                    override fun onSuccess(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {
+                        Log.v(TAG, uploadInfo.uploadedBytes.toString())
+                    }
+
+                    override fun onError(context: Context, uploadInfo: UploadInfo, exception: Throwable) {
+                        Log.v(TAG, exception.toString())
+                    }
+
+                    override fun onCompleted(context: Context, uploadInfo: UploadInfo) {
+                        Log.v(TAG, uploadInfo.uploadedBytes.toString())
+                    }
+
+                    override fun onCompletedWhileNotObserving() {
+                        Log.v(TAG, "onCompletedWhileNotObserving")
+                    }
+                })
+
+                multipartUploadRequest.startUpload()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
