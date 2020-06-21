@@ -73,4 +73,5 @@ public class UserRestCalls {
     public abstract static class GetAllUsersCallback {
         public abstract void onTaskComplete(boolean success, JSONArray result);
     }
+
 }
