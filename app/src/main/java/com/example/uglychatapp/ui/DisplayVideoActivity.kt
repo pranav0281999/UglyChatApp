@@ -4,7 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageView
+import android.widget.MediaController
+import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.uglychatapp.MainApplication
 import com.example.uglychatapp.R
@@ -14,28 +15,36 @@ import net.gotev.uploadservice.observer.request.RequestObserverDelegate
 import net.gotev.uploadservice.protocols.multipart.MultipartUploadRequest
 import java.util.*
 
-class DisplayImageActivity : AppCompatActivity() {
-    var imageView: ImageView? = null
+class DisplayVideoActivity : AppCompatActivity() {
+
+    var videoView: VideoView? = null
+    var mediaController: MediaController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_display_image)
-        imageView = findViewById(R.id.display_image_iv)
 
-        if (intent.hasExtra("imagePath")) {
-            val imagePath = intent.getStringExtra("imagePath")
+        setContentView(R.layout.activity_display_video)
 
-            imageView?.setImageURI(Uri.parse(imagePath))
+        mediaController = MediaController(this)
+        videoView = findViewById(R.id.display_video_vv)
+
+        if (intent.hasExtra("videoPath")) {
+            val videoPath = intent.getStringExtra("videoPath")
+
+            videoView?.setVideoURI(Uri.parse(videoPath))
+            videoView?.start()
+
+            mediaController!!.setAnchorView(videoView)
 
             val uuid = UUID.randomUUID().toString()
 
             try {
-                val multipartUploadRequest = MultipartUploadRequest(this, serverUrl = "http://" + MainApplication.serverNode + ":" + MainApplication.serverNodePort + "/chat/image")
+                val multipartUploadRequest = MultipartUploadRequest(this, serverUrl = "http://" + MainApplication.serverNode + ":" + MainApplication.serverNodePort + "/chat/video")
                         .setMethod("POST")
                         .addHeader("filename", uuid)
                         .addFileToUpload(
-                                filePath = imagePath,
-                                parameterName = "image"
+                                filePath = videoPath,
+                                parameterName = "video"
                         )
 
                 multipartUploadRequest.subscribe(this, this, object : RequestObserverDelegate {
@@ -68,6 +77,6 @@ class DisplayImageActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "DisplayImageActivity"
+        private const val TAG = "DisplayVideoActivity"
     }
 }
